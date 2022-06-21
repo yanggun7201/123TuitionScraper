@@ -1,4 +1,5 @@
 const moment = require("moment");
+const { LessonReport, sequelize } = require('./database/LessonReport.js');
 const { startOfDate, endOfDate } = require("./utils/dates");
 const { getSelectBoxOptions, chooseOption, waitForNavigationAndAddScriptTags } = require("./utils/dom");
 const { SUBJECT_SELECT_SELECTOR, COURSE_SELECT_SELECTOR } = require("./utils/constants");
@@ -6,9 +7,9 @@ const { delay } = require("./utils/common");
 const { goToLessonReport } = require("./actions/goToLessonReport");
 
 
-async function collectReportTable(page, fromDate, toDate) {
+async function collectReportTable(page, student, fromDate, toDate) {
 
-  return await page.evaluate((fromDate, toDate) => {
+  return await page.evaluate((fromDate, toDate, userId, userName) => {
     console.log('filterDate', fromDate, toDate);
     console.log('moment', window.moment());
 
@@ -43,7 +44,9 @@ async function collectReportTable(page, fromDate, toDate) {
     return filteredRows.map(tr => {
       const columns = tr.querySelectorAll("td");
       return {
-        title: columns[0].textContent.trim(),
+        userId,
+        userName,
+        title: (columns[0].title ? columns[0].title.trim() : columns[0].textContent.trim()),
         date: moment(parseTimestamp(columns[1].textContent.trim())).toISOString(),
         numberOfQuestions: columns[2].textContent.trim(),
         numberOfCorrect: columns[3].textContent.trim(),
@@ -54,20 +57,18 @@ async function collectReportTable(page, fromDate, toDate) {
       }
     })
 
-  }, fromDate, toDate);
+  }, fromDate, toDate, student.id, student.name);
 }
 
-async function collectReport(page, student) {
+async function collectReport(page, student, fromDateISOString, toDateISOString) {
+
+  // The following line will sync our models
+  // To the database creating them or altering the db
+  // To match the new model
+  await sequelize.sync({ alter: true });
 
   const subjects = await getSelectBoxOptions(page, SUBJECT_SELECT_SELECTOR);
-  const fromDate = startOfDate(moment());
-  const toDate = endOfDate(moment(fromDate));
-
-  const fromDateISOString = fromDate.toISOString();
-  const toDateISOString = toDate.toISOString();
-
   console.log('____________________________student', student);
-  console.log('____________________________fromDate ~ toDate', fromDateISOString, "~", toDateISOString);
 
   for (let i = 0; i<subjects.length; i++) {
     await chooseOption(page, SUBJECT_SELECT_SELECTOR, subjects[i].id);
@@ -77,8 +78,8 @@ async function collectReport(page, student) {
     for (let j = 0; j<curriculums.length; j++) {
       await chooseOption(page, COURSE_SELECT_SELECTOR, curriculums[j].id);
       try {
-        const reportData = await collectReportTable(page, fromDateISOString, toDateISOString);
-        console.table(reportData);
+        const reportData = await collectReportTable(page, student, fromDateISOString, toDateISOString);
+        await saveLessonReports(reportData);
       } catch (e) {
         console.log(e);
         await delay(3000 * 1000);
@@ -90,6 +91,52 @@ async function collectReport(page, student) {
   // id=applicationId
   // <option value="2" selected="selected">Mathematics</option>
   // <option value="413">Literacy</option>
+}
+
+async function printAllLessonReports() {
+  const reports = await LessonReport.findAll({
+    // The following ensure we get plain data
+    // Instead of an array of instances
+    raw: true,
+  });
+  console.log("__________ findAll reports");
+  console.log(reports);
+}
+
+async function saveLessonReports(reportData) {
+
+  console.table(reportData);
+
+  await printAllLessonReports();
+
+  console.log("__________ start saving reports");
+  for (let k = 0; k<reportData.length; k++) {
+    const datum = reportData[k];
+    const lessonReportModel = await LessonReport.findOne({
+      where: {
+        title: datum.title,
+        date: datum.date,
+        userId: datum.userId,
+        userName: datum.userName,
+      }
+    });
+
+    console.log('lessonReportModel ===================', lessonReportModel);
+
+    if (lessonReportModel && lessonReportModel.id) {
+      await LessonReport.update(
+        // This object represent the fields
+        // We are trying to update
+        { ...datum },
+        { where: { id: lessonReportModel.id } }
+      );
+    } else {
+      console.log('INSERT new datum:::', datum);
+      await LessonReport.build(datum).save();
+    }
+  }
+  console.log("__________ end saving reports");
+  await printAllLessonReports();
 }
 
 module.exports = {

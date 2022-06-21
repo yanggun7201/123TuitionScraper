@@ -5,3 +5,5 @@ ChromeSession
 
 *.iml
 .env
+
+database-123tuition.sqlite

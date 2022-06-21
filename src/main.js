@@ -25,9 +25,21 @@ const runProcess = async () => {
     const students = await getSelectBoxOptions(page, STUDENT_SELECT_SELECTOR);
     console.log('students', students);
 
+    const startPeriod = startOfDate(moment().day("Sunday"));
+    const endPeriod = endOfDate(moment(startPeriod).add(6, "days")); // 6
+    console.log('startPeriod', startPeriod);
+    console.log('endPeriod', endPeriod);
+
+    const fromDate = startOfDate(moment().subtract(1, "days"));
+    const toDate = endOfDate(moment(fromDate).add(1, "days"));
+    const fromDateISOString = fromDate.toISOString();
+    const toDateISOString = toDate.toISOString();
+
+    console.log('____________________________fromDate ~ toDate', fromDateISOString, "~", toDateISOString);
+
     for (let i = 0; i<students.length; i++) {
       await chooseOption(page, STUDENT_SELECT_SELECTOR, students[i].id);
-      await collectReport(page, students[i]);
+      await collectReport(page, students[i], fromDateISOString, toDateISOString);
       await delay(5000);
     }
   } catch (e) {
@@ -67,10 +79,6 @@ module.exports = {
     const arguments = process.argv.slice(2);
     console.log('arguments', arguments);
 
-    const startPeriod = startOfDate(moment().day("Sunday"));
-    const endPeriod = endOfDate(moment(startPeriod).add(6, "days")); // 6
-    console.log('startPeriod', startPeriod);
-    console.log('endPeriod', endPeriod);
     await runProcess();
     console.info(`\n\n\n${new Date()} #####  Done  #####\n\n\n`);
   }
