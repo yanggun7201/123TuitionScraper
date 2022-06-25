@@ -7,6 +7,8 @@ const { startOfDate, endOfDate } = require("./utils/dates");
 const { STUDENT_SELECT_SELECTOR } = require("./utils/constants");
 const { collectReport } = require("./report");
 const { goToReport } = require("./actions/goToReport");
+const { sendReminderMessage: sendSummaryMessage } = require("./actions/sendReminderMessage");
+const { getReportSummary } = require("./actions/reportSummary");
 
 require("dotenv").config();
 
@@ -16,6 +18,7 @@ global.ROOT_DIR = __dirname;
 
 const runProcess = async () => {
   let browser = null;
+
   try {
     browser = await launchBrowser();
     const page = await browser.newPage();
@@ -23,25 +26,24 @@ const runProcess = async () => {
     await login(page);
     await goToReport(page);
     const students = await getSelectBoxOptions(page, STUDENT_SELECT_SELECTOR);
-    console.log('students', students);
 
     const startPeriod = startOfDate(moment().day("Sunday"));
     const endPeriod = endOfDate(moment(startPeriod).add(6, "days")); // 6
-    console.log('startPeriod', startPeriod);
-    console.log('endPeriod', endPeriod);
 
-    const fromDate = startOfDate(moment().subtract(1, "days"));
-    const toDate = endOfDate(moment(fromDate).add(1, "days"));
-    const fromDateISOString = fromDate.toISOString();
-    const toDateISOString = toDate.toISOString();
+    const fromDateISOString = startPeriod.toISOString(true);
+    const toDateISOString = endPeriod.toISOString(true);
 
     console.log('____________________________fromDate ~ toDate', fromDateISOString, "~", toDateISOString);
 
-    for (let i = 0; i<students.length; i++) {
+    for (let i = 0; i < students.length; i++) {
       await chooseOption(page, STUDENT_SELECT_SELECTOR, students[i].id);
       await collectReport(page, students[i], fromDateISOString, toDateISOString);
       await delay(5000);
     }
+
+    const reportSummary = await getReportSummary();
+    await sendSummaryMessage(page, reportSummary);
+    console.log('____________________________fromDate ~ toDate', fromDateISOString, "~", toDateISOString);
   } catch (e) {
     console.log("runProcess()", e);
   } finally {
@@ -71,6 +73,7 @@ const runProcess = async () => {
 
 module.exports = {
   main: async function () {
+    console.time("Elapsed time:");
     console.log(`process.env.NODE_ENV = "${process.env.NODE_ENV}" - ${new Date()}`);
     // reStartDailyOutcome();
 
@@ -81,5 +84,6 @@ module.exports = {
 
     await runProcess();
     console.info(`\n\n\n${new Date()} #####  Done  #####\n\n\n`);
+    console.timeEnd("Elapsed time:");
   }
 }

@@ -1,9 +1,11 @@
 .idea
 node_modules
 ChromeSession
+data
+
 
 
 *.iml
 .env
 
-database-123tuition.sqlite
+*.sqlite

@@ -15,6 +15,7 @@ const LessonReport = sequelize.define('LessonReport', {
   videoWatchedPercentage: { type: DataTypes.STRING },
   certificate: { type: DataTypes.STRING },
   totalTimeTakenMinSec: { type: DataTypes.STRING },
+  subjectName: { type: DataTypes.STRING },
 }, {
   // For the sake of clarity we specify our indexes
   indexes: [

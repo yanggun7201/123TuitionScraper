@@ -6,6 +6,8 @@ const sequelize = new Sequelize('database', global.DATABASE_USER_ID, global.DATA
   dialect: 'sqlite',
   // we will be saving our db as a file on this path
   storage: 'database-123tuition.sqlite', // or ':memory:'
+  logging: false, // // disable logging; default: console.log
+  logQueryParameters: false,
 });
 
 module.exports = {

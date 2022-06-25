@@ -3,7 +3,7 @@ const { JS_FILE_PATHS } = require("./constants");
 async function waitForNavigationAndAddScriptTags(page) {
   await page.waitForNavigation();
   // add some scripts
-  for (let i = 0; i<JS_FILE_PATHS.length; i++) {
+  for (let i = 0; i < JS_FILE_PATHS.length; i++) {
     await page.addScriptTag({ path: require.resolve(JS_FILE_PATHS[i]) });
   }
 }

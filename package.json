@@ -7,10 +7,12 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/index.js"
   },
-  "author": "",
+  "author": "yanggun7201@gmail.com",
   "license": "ISC",
   "dependencies": {
+    "@slack/web-api": "^6.7.2",
     "dotenv": "^16.0.1",
+    "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "puppeteer": "^14.4.1",
     "sequelize": "^6.21.0",
