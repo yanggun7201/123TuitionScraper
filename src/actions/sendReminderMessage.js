@@ -38,7 +38,7 @@ async function sendReminderMessageThroughSlack(reportSummary) {
 
   console.log("Slack start");
   await sendSlackMessage(":heart::heart::heart::heart::heart::heart::");
-  await sendSlackMessage(moment().toISOString(true));
+  await sendSlackMessage(`123Tuition ${moment().toISOString(true)}`);
 
   for (let i = 0; i < reportSummary.length; i++) {
     const message = await generateMessage(reportSummary[i]);
