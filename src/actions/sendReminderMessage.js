@@ -1,15 +1,13 @@
 const {
   DAY_OF_WEEK,
-  DEFAULT_ALLOWANCE,
   DOLLAR_PER_MODULE,
-  SUCCESS_BONUS
 } = require("../utils/constants");
 const { loadKakaoScript, initKakaoAPI, sendKakaoMessage } = require("./sendKakaoMessage");
 const { sendSlackMessage } = require("./sendSlackMessage");
 const moment = require("moment");
 
 function getCountAndPass(reportSummary, fieldPrefix) {
-  return `${reportSummary[fieldPrefix + "Count"]}(${reportSummary[fieldPrefix + "Pass"] ? "O" : "X"})`;
+  return `${reportSummary[fieldPrefix + "TryCount"]}(${reportSummary[fieldPrefix + "PassCount"] ? "O" : "X"})`;
 }
 
 async function generateMessage(reportSummary) {

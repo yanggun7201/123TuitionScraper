@@ -1,16 +1,21 @@
 const moment = require("moment");
 const { groupBy } = require("lodash");
-const { startOfDate, endOfDate } = require("../utils/dates");
+const { getDateRange} = require("../utils/dates");
 const { DAY_OF_WEEK } = require("../utils/constants");
 const { findAll } = require("../services/LessonReportService");
 
-function getSubjectCount(reports, subject) {
-  return reports.filter(report => report.subjectName === subject).length;
-}
-
-function isSubjectPass(reports, subject) {
+function getPassCount(reports) {
   // Gold, Silver, Bronze, N/A(Assessment)
-  return reports.filter(report => report.subjectName === subject).some(report => report.certificate);
+  const groupedByTitle = groupBy(reports, "title");
+
+  let subjectPassCount = 0;
+  for(const [_, reportsData] of Object.entries(groupedByTitle)) {
+    if (reportsData.length > 1 || reportsData?.[0]?.certificate) {
+      subjectPassCount ++;
+    }
+  }
+
+  return subjectPassCount;
 }
 
 function mapReportByDayOfWeek(reportsByDay, targetMomentDate) {
@@ -18,21 +23,21 @@ function mapReportByDayOfWeek(reportsByDay, targetMomentDate) {
   const targetDate = targetMomentDate.format("YYYY-MM-DD");
   const date = targetMomentDate.format("DD");
 
-  let result = {
-    date: date,
-    mathCount: 0,
-    mathPass: false,
-    englishCount: 0,
-    englishPass: false,
+  const result = {
+    date,
+    mathTryCount: 0,
+    mathPassCount: 0,
+    englishTryCount: 0,
+    englishPassCount: 0,
   }
 
   if (reportsByDay[targetDate]) {
-    result = {
+    return {
       ...result,
-      mathCount: getSubjectCount(reportsByDay[targetDate], "Mathematics"),
-      mathPass: isSubjectPass(reportsByDay[targetDate], "Mathematics"),
-      englishCount: getSubjectCount(reportsByDay[targetDate], "Literacy"),
-      englishPass: isSubjectPass(reportsByDay[targetDate], "Literacy"),
+      mathTryCount: reportsByDay[targetDate].filter(report => report.subjectName === "Mathematics").length,
+      mathPassCount: getPassCount(reportsByDay[targetDate].filter(report => report.subjectName === "Mathematics")),
+      englishTryCount: reportsByDay[targetDate].filter(report => report.subjectName === "Literacy").length,
+      englishPassCount: getPassCount(reportsByDay[targetDate].filter(report => report.subjectName === "Literacy")),
     }
   }
 
@@ -41,8 +46,7 @@ function mapReportByDayOfWeek(reportsByDay, targetMomentDate) {
 
 async function getReportSummary() {
 
-  const startPeriod = startOfDate(moment().day("Sunday"));
-  const endPeriod = endOfDate(moment(startPeriod).add(6, "days")); // 6
+  const [startPeriod, endPeriod] = getDateRange();
   const fromDateISOString = startPeriod.toISOString(true);
   const toDateISOString = endPeriod.toISOString(true);
 
@@ -63,8 +67,8 @@ async function getReportSummary() {
 
     userResults.push({
       userName,
-      totalMathPass: Object.values(userResult).filter(result => result.mathPass || result.mathCount > 1).length,
-      totalEnglishPass: Object.values(userResult).filter(result => result.englishPass || result.englishCount > 1).length,
+      totalMathPass: Object.values(userResult).map(result => result.mathPassCount).reduce((sum, currentValue) => sum + (currentValue||0), 0),
+      totalEnglishPass: Object.values(userResult).map(result => result.englishPassCount).reduce((sum, currentValue) => sum + (currentValue||0), 0),
       result: userResult
     });
   }// for

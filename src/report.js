@@ -1,14 +1,10 @@
 const moment = require("moment");
-const Sequelize = require('sequelize');
 const { LessonReport, sequelize } = require('./database/LessonReport.js');
-const { startOfDate, endOfDate } = require("./utils/dates");
-const { getSelectBoxOptions, chooseOption, waitForNavigationAndAddScriptTags } = require("./utils/dom");
+const { getSelectBoxOptions, chooseOption } = require("./utils/dom");
 const { SUBJECT_SELECT_SELECTOR, COURSE_SELECT_SELECTOR } = require("./utils/constants");
 const { delay } = require("./utils/common");
 const { goToLessonReport } = require("./actions/goToLessonReport");
 const { getCountWithStartDate, getTotalCount } = require("./services/LessonReportService");
-
-const Op = Sequelize.Op;
 
 /**
  *

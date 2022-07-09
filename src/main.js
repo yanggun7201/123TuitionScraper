@@ -3,7 +3,7 @@ const { delay } = require("./utils/common");
 const { getSelectBoxOptions, chooseOption } = require("./utils/dom");
 const { login } = require("./actions/login");
 const { launchBrowser } = require("./utils/browser");
-const { startOfDate, endOfDate } = require("./utils/dates");
+const { startOfDate, endOfDate, getDateRange} = require("./utils/dates");
 const { STUDENT_SELECT_SELECTOR } = require("./utils/constants");
 const { collectReport } = require("./report");
 const { goToReport } = require("./actions/goToReport");
@@ -27,9 +27,7 @@ const runProcess = async () => {
     await goToReport(page);
     const students = await getSelectBoxOptions(page, STUDENT_SELECT_SELECTOR);
 
-    const startPeriod = startOfDate(moment().day("Sunday"));
-    const endPeriod = endOfDate(moment(startPeriod).add(6, "days")); // 6
-
+    const [startPeriod, endPeriod] = getDateRange();
     const fromDateISOString = startPeriod.toISOString(true);
     const toDateISOString = endPeriod.toISOString(true);
 
