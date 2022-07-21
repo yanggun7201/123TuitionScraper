@@ -10,7 +10,7 @@ function getPassCount(reports) {
 
   let subjectPassCount = 0;
   for(const [_, reportsData] of Object.entries(groupedByTitle)) {
-    if (reportsData.length > 1 || reportsData?.[0]?.certificate) {
+    if (reportsData.length > 2 || reportsData?.[0]?.certificate) {
       subjectPassCount ++;
     }
   }

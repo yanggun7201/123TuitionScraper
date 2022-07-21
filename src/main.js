@@ -1,9 +1,8 @@
-const moment = require("moment");
 const { delay } = require("./utils/common");
 const { getSelectBoxOptions, chooseOption } = require("./utils/dom");
 const { login } = require("./actions/login");
 const { launchBrowser } = require("./utils/browser");
-const { startOfDate, endOfDate, getDateRange} = require("./utils/dates");
+const { getDateRange} = require("./utils/dates");
 const { STUDENT_SELECT_SELECTOR } = require("./utils/constants");
 const { collectReport } = require("./report");
 const { goToReport } = require("./actions/goToReport");
