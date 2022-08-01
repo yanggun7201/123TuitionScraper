@@ -13,10 +13,10 @@
     "@slack/web-api": "^6.7.2",
     "dotenv": "^16.0.1",
     "lodash": "^4.17.21",
-    "moment": "^2.29.1",
+    "moment": "^2.29.4",
     "puppeteer": "^14.4.1",
-    "sequelize": "^6.21.0",
+    "sequelize": "^6.21.3",
     "sequelize-typescript": "^2.1.3",
-    "sqlite3": "^5.0.8"
+    "sqlite3": "^5.0.10"
   }
 }
