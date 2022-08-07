@@ -13,7 +13,7 @@ function getPassCount(reports) {
     // if (reportsData.length > 2 || reportsData?.[0]?.certificate) {
     //   subjectPassCount ++;
     // }
-    if (reportsData?.[0]?.certificate) {
+    if (reportsData?.[0]?.certificate > '') {
       subjectPassCount ++;
     }
   }
@@ -58,7 +58,10 @@ async function getReportSummary() {
   const userResults = [];
 
   for (const [userName, reports] of Object.entries(reportsByUser)) {
-    const reportsByDay = groupBy(reports, report => report.date.substring(0, 10));
+    const reportsByDay = groupBy(
+      reports.filter(item => item.certificate),
+      report => report.date.substring(0, 10)
+    );
     const userResult = {};
 
     DAY_OF_WEEK.map((dayOfWeekText, index) => {

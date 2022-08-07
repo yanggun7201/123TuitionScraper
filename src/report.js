@@ -64,10 +64,10 @@ async function collectReportTable(page, student, subjectName, fromDate, toDate) 
   }, fromDate, toDate, subjectName, student.id, student.name);
 }
 
-async function collectCurriculumAndSaveLessonReport(page, curriculums, j, student, subjects, i, fromDateISOString, toDateISOString) {
-  await chooseOption(page, COURSE_SELECT_SELECTOR, curriculums[j].id);
+async function collectCurriculumAndSaveLessonReport(page, curriculumId, student, subjectName, fromDateISOString, toDateISOString) {
+  await chooseOption(page, COURSE_SELECT_SELECTOR, curriculumId);
   try {
-    const reportData = await collectReportTable(page, student, subjects[i].name, fromDateISOString, toDateISOString);
+    const reportData = await collectReportTable(page, student, subjectName, fromDateISOString, toDateISOString);
     await saveLessonReports(reportData);
   } catch (e) {
     console.log(e);
@@ -90,7 +90,7 @@ async function collectReport(page, student, fromDateISOString, toDateISOString) 
     const curriculums = await getSelectBoxOptions(page, COURSE_SELECT_SELECTOR);
 
     for (let j = 0; j < curriculums.length; j++) {
-      await collectCurriculumAndSaveLessonReport(page, curriculums, j, student, subjects, i, fromDateISOString, toDateISOString);
+      await collectCurriculumAndSaveLessonReport(page, curriculums[j].id, student, subjects[i].name, fromDateISOString, toDateISOString);
       await delay(1000);
     }
   }
