@@ -1,5 +1,5 @@
 const moment = require("moment");
-const { LessonReport, sequelize } = require('./database/LessonReport.js');
+const { LessonReport, sequelize } = require('./database/LessonReport');
 const { getSelectBoxOptions, chooseOption } = require("./utils/dom");
 const { SUBJECT_SELECT_SELECTOR, COURSE_SELECT_SELECTOR } = require("./utils/constants");
 const { delay } = require("./utils/common");
@@ -15,9 +15,9 @@ const { getCountWithStartDate, getTotalCount } = require("./services/LessonRepor
  * @param toDate
  * @returns {Promise<*>}
  */
-async function collectReportTable(page, student, subjectName, fromDate, toDate) {
+async function collectReportTable(page, student, subjectName, curriculumName, fromDate, toDate) {
 
-  return await page.evaluate((fromDate, toDate, subjectName, userId, userName) => {
+  return await page.evaluate((fromDate, toDate, subjectName, curriculumName, userId, userName) => {
 
     const fromDateMoment = moment(fromDate);
     const toDateMoment = moment(toDate);
@@ -50,6 +50,7 @@ async function collectReportTable(page, student, subjectName, fromDate, toDate) 
         userId,
         userName,
         subjectName,
+        curriculumName,
         title: (columns[0].title ? columns[0].title.trim() : columns[0].textContent.trim()),
         date: moment(parseTimestamp(columns[1].textContent.trim())).toISOString(true),
         numberOfQuestions: columns[2].textContent.trim(),
@@ -61,13 +62,13 @@ async function collectReportTable(page, student, subjectName, fromDate, toDate) 
       }
     })
 
-  }, fromDate, toDate, subjectName, student.id, student.name);
+  }, fromDate, toDate, subjectName, curriculumName, student.id, student.name);
 }
 
-async function collectCurriculumAndSaveLessonReport(page, curriculumId, student, subjectName, fromDateISOString, toDateISOString) {
-  await chooseOption(page, COURSE_SELECT_SELECTOR, curriculumId);
+async function collectCurriculumAndSaveLessonReport(page, curriculum, student, subjectName, fromDateISOString, toDateISOString) {
+  await chooseOption(page, COURSE_SELECT_SELECTOR, curriculum.id);
   try {
-    const reportData = await collectReportTable(page, student, subjectName, fromDateISOString, toDateISOString);
+    const reportData = await collectReportTable(page, student, subjectName, curriculum.name, fromDateISOString, toDateISOString);
     await saveLessonReports(reportData);
   } catch (e) {
     console.log(e);
@@ -90,7 +91,7 @@ async function collectReport(page, student, fromDateISOString, toDateISOString) 
     const curriculums = await getSelectBoxOptions(page, COURSE_SELECT_SELECTOR);
 
     for (let j = 0; j < curriculums.length; j++) {
-      await collectCurriculumAndSaveLessonReport(page, curriculums[j].id, student, subjects[i].name, fromDateISOString, toDateISOString);
+      await collectCurriculumAndSaveLessonReport(page, curriculums[j], student, subjects[i].name, fromDateISOString, toDateISOString);
       await delay(1000);
     }
   }
