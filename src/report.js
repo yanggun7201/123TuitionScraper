@@ -11,6 +11,7 @@ const { getCountWithStartDate, getTotalCount } = require("./services/LessonRepor
  * @param page
  * @param student
  * @param subjectName Mathematics | Literacy | Mathematics Revision
+ * @param curriculumName
  * @param fromDate
  * @param toDate
  * @returns {Promise<*>}
