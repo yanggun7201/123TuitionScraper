@@ -1,20 +1,34 @@
 const moment = require("moment");
 const { groupBy } = require("lodash");
-const { getDateRange} = require("../utils/dates");
+const { getDateRange } = require("../utils/dates");
 const { DAY_OF_WEEK } = require("../utils/constants");
 const { findAll } = require("../services/LessonReportService");
+
+const getMarkNumber = mark => {
+  const markNumber = Number(mark);
+  if (isNaN(markNumber)) {
+    return 0;
+  }
+  return markNumber;
+}
+
+const isMarkOver70 = mark => {
+  return getMarkNumber(mark) >= 70;
+}
 
 function getPassCount(reports) {
   // Gold, Silver, Bronze, N/A(Assessment)
   const groupedByTitle = groupBy(reports, "title");
 
   let subjectPassCount = 0;
-  for(const [_, reportsData] of Object.entries(groupedByTitle)) {
+  for (const [_, reportsData] of Object.entries(groupedByTitle)) {
     // if (reportsData.length > 2 || reportsData?.[0]?.certificate) {
     //   subjectPassCount ++;
     // }
     if (reportsData?.[0]?.certificate > '') {
-      subjectPassCount ++;
+      subjectPassCount++;
+    } else if (isMarkOver70(reportsData?.[0]?.mark)) {
+      subjectPassCount++;
     }
   }
 
@@ -59,7 +73,7 @@ async function getReportSummary() {
 
   for (const [userName, reports] of Object.entries(reportsByUser)) {
     const reportsByDay = groupBy(
-      reports.filter(item => item.certificate),
+      reports.filter(item => item.certificate || isMarkOver70(item.mark)),
       report => report.date.substring(0, 10)
     );
     const userResult = {};
@@ -73,8 +87,8 @@ async function getReportSummary() {
 
     userResults.push({
       userName,
-      totalMathPass: Object.values(userResult).map(result => result.mathPassCount).reduce((sum, currentValue) => sum + (currentValue||0), 0),
-      totalEnglishPass: Object.values(userResult).map(result => result.englishPassCount).reduce((sum, currentValue) => sum + (currentValue||0), 0),
+      totalMathPass: Object.values(userResult).map(result => result.mathPassCount).reduce((sum, currentValue) => sum + (currentValue || 0), 0),
+      totalEnglishPass: Object.values(userResult).map(result => result.englishPassCount).reduce((sum, currentValue) => sum + (currentValue || 0), 0),
       result: userResult
     });
   }// for

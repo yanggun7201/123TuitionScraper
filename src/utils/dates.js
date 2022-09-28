@@ -9,8 +9,8 @@ function endOfDate(startOfDate) {
 }
 
 function getDateRange() {
-  const startPeriod = startOfDate(moment().subtract(6, "hours").day("Sunday")).add(6, "hours");
-  const endPeriod = endOfDate(moment(startPeriod).add(6, "days")); // 6
+  const startPeriod = startOfDate(moment().subtract(23, "hours").day("Sunday")).add(23, "hours");
+  const endPeriod = endOfDate(moment(startPeriod).add(23, "days")); // 6
 
   // Start and End at 6 am
   return [
