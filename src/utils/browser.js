@@ -2,7 +2,7 @@ const puppeteer = require("puppeteer");
 
 async function launchBrowser() {
   return await puppeteer.launch({
-    headless: false,
+    headless: "true" === global.HEADLESS  ? true : false,
     ignoreHTTPSErrors: true,
     // userDataDir: path.join(process.cwd(), "ChromeSession"),
     // slowMo: 250, // slow down by 250ms

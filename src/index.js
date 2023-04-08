@@ -9,6 +9,7 @@ global.KAKAO_JAVASCRIPT_KEY = process.env.KAKAO_JAVASCRIPT_KEY;
 global.SLACK_TOKEN = process.env.SLACK_TOKEN;
 global.SLACK_CHANNEL_ID = process.env.SLACK_CHANNEL_ID;
 global.USE_SLACK = process.env.USE_SLACK;
+global.HEADLESS = process.env.HEADLESS;
 
 const { main } = require("./main");
 
