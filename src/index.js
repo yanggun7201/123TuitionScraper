@@ -11,8 +11,13 @@ global.SLACK_CHANNEL_ID = process.env.SLACK_CHANNEL_ID;
 global.USE_SLACK = process.env.USE_SLACK;
 global.HEADLESS = process.env.HEADLESS;
 
-const { main } = require("./main");
+const { main : run } = require("./main");
 
-(async function () {
-  await main();
-})();
+async function main() {
+  await run();
+}
+
+const retryTimeout = parseInt(process.env.RETRY_TIMEOUT_MINUTES || "5", 10) * 60;
+console.log("RETRY_TIMEOUT_SECONDS", retryTimeout);
+
+setInterval(main, retryTimeout * 1000);
