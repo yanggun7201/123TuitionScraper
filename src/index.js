@@ -17,6 +17,8 @@ async function main() {
   await run();
 }
 
+main();
+
 const retryTimeout = parseInt(process.env.RETRY_TIMEOUT_MINUTES || "5", 10) * 60;
 console.log("RETRY_TIMEOUT_SECONDS", retryTimeout);
 
